@@ -1,0 +1,16 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.7'
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build apk --release --target-platform android-arm64 --dart-define=cronetHttpNoPlay=true
