@@ -1,0 +1,14 @@
+SteamServerBrowser for Android is a Flutter port focused on Steam server discovery
+and A2S-compatible server queries.
+
+Features:
+
+* Browse Steam master server results through the Steam Web API.
+* Query live A2S_INFO, A2S_PLAYER, and A2S_RULES data.
+* Refresh loaded servers without fetching a new master list.
+* Save favorites and manually add IP:port entries.
+* Filter by map, tags, ping, players, countries, and local search text.
+* Import an optional MMDB database for offline country lookup.
+
+The app does not bundle an MMDB database. Geo features stay disabled until the
+user imports one manually.

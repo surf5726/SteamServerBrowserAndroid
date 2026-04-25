@@ -1,0 +1,3 @@
+Initial Android Flutter port with Steam Web API browsing, A2S server details,
+favorites, manual server entries, and optional user-imported MMDB country
+filtering.

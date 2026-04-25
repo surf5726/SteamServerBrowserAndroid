@@ -1,0 +1,333 @@
+{
+  "@@locale": "en",
+  "appTitle": "Steam Server Browser",
+  "browseNavLabel": "Browse",
+  "favoritesNavLabel": "Favorites",
+  "browseTitle": "Steam Server Browser",
+  "browseTitleWithCounts": "Steam Server Browser ({visible}/{total})",
+  "@browseTitleWithCounts": {
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "favoritesTitle": "Favorites",
+  "filtersTooltip": "Filters",
+  "addAddressTooltip": "Add address",
+  "refreshFavoritesTooltip": "Refresh favorites",
+  "scanTooltip": "Scan",
+  "settingsTitle": "Settings",
+  "steamWebApiKeyLabel": "Steam Web API key",
+  "pasteSteamWebApiKeyHint": "Paste your 32-character key",
+  "steamWebApiOnlyHelper": "Master list scans use the Steam Web API only.",
+  "hideKeyTooltip": "Hide key",
+  "showKeyTooltip": "Show key",
+  "openSteamApiKeyPageButton": "Open Steam Web API key page",
+  "openSteamApiKeyPageError": "Could not open the Steam Web API key page.",
+  "geoDatabaseTitle": "GeoIP country database",
+  "geoSelectedDatabaseStatus": "Selected {fileName}. Tap Apply to save it.",
+  "@geoSelectedDatabaseStatus": {
+    "placeholders": {
+      "fileName": {}
+    }
+  },
+  "geoImportedDatabaseStatus": "Imported {fileName}.",
+  "@geoImportedDatabaseStatus": {
+    "placeholders": {
+      "fileName": {}
+    }
+  },
+  "geoImportDatabaseHint": "Import an ipinfo.io MMDB file to unlock geo country filters.",
+  "replaceMmdb": "Replace .mmdb",
+  "importMmdb": "Import .mmdb",
+  "removeMmdb": "Remove .mmdb",
+  "enableCountryFilterTitle": "Enable country filter",
+  "enableCountryFilterSubtitleEnabled": "Uses only the country segment from the imported MMDB.",
+  "enableCountryFilterSubtitleDisabled": "Import a .mmdb file first.",
+  "mapLabel": "Map",
+  "mapHint": "Example: de_dust2",
+  "gameDirModLabel": "Game dir / mod",
+  "gameDirModHint": "Example: csgo",
+  "countryIncludeLabel": "Country include",
+  "countryIncludeHint": "US,CN,DE",
+  "countryIncludeHelper": "ISO codes to keep",
+  "countryExcludeLabel": "Country exclude",
+  "countryExcludeHint": "RU,IR",
+  "countryExcludeHelper": "ISO codes to hide",
+  "serverTagIncludeLabel": "Server tag include",
+  "serverTagIncludeHint": "Tags from the Steam master list",
+  "serverTagIncludeHelper": "Master server filter",
+  "serverTagExcludeLabel": "Server tag exclude",
+  "serverTagExcludeHint": "Tags to remove before A2S",
+  "serverTagExcludeHelper": "Master server filter",
+  "clientTagIncludeLabel": "Client tag include",
+  "clientTagIncludeHint": "Tags required in live results",
+  "clientTagIncludeHelper": "Local filter after results arrive",
+  "clientTagExcludeLabel": "Client tag exclude",
+  "clientTagExcludeHint": "Tags to hide in live results",
+  "clientTagExcludeHelper": "Local filter after results arrive",
+  "resultLimitLabel": "Result limit",
+  "resultLimitHint": "250",
+  "minPlayersLabel": "Min players",
+  "minPlayersHint": "0",
+  "maxPingLabel": "Max ping",
+  "maxPingHint": "0",
+  "includeEmptyServers": "Include empty servers",
+  "includeFullServers": "Include full servers",
+  "hideUnresponsiveServers": "Hide unresponsive servers",
+  "countBotsTowardMinimumPlayers": "Count bots toward minimum players",
+  "cancel": "Cancel",
+  "apply": "Apply",
+  "addButton": "Add",
+  "gameAppIdLabel": "Game App ID",
+  "searchLabel": "Search",
+  "customAppIdHint": "Type custom appid",
+  "chooseGameTooltip": "Choose game",
+  "scanButton": "Scan",
+  "stopButton": "Stop",
+  "refreshButton": "Refresh",
+  "searchHint": "Search by name, map, tag, or address",
+  "limitChip": "Limit {limit}",
+  "@limitChip": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "maxPingChip": "Max {pingMs} ms",
+  "@maxPingChip": {
+    "placeholders": {
+      "pingMs": {
+        "type": "int"
+      }
+    }
+  },
+  "geoFilterOnChip": "Geo filter on",
+  "geoReadyChip": "Geo ready",
+  "geoAvailableChip": "Geo available",
+  "geoUnavailableChip": "Geo unavailable",
+  "noServersLoadedTitle": "No servers loaded yet",
+  "steamWebApiKeyRequiredTitle": "Steam Web API key required",
+  "noServersLoadedBody": "Run a scan to pull servers from the Steam Web API.",
+  "steamWebApiKeyRequiredBody": "Open Settings, paste your 32-character Steam Web API key, then tap Scan.",
+  "noFavoriteServersTitle": "No favorite servers yet",
+  "noFavoriteServersBody": "Star a server from the browser list, or add one manually by address.",
+  "addFavoriteServerTitle": "Add favorite server",
+  "addFavoriteServerHint": "Paste one or more IP:port addresses",
+  "invalidNumericAppId": "Enter a valid numeric App ID.",
+  "favoritesSavedStatus": "Favorites saved. Tap refresh to query them.",
+  "gameChangedStatus": "Game changed. Tap Scan to refresh the server list.",
+  "filtersSavedStatus": "Settings saved. Tap Scan to start querying servers.",
+  "requestingServerListStatus": "Requesting server list from the Steam Web API...",
+  "browseScanStoppedStatus": "Scan stopped. Tap Scan to start again.",
+  "browseServersReadyStatus": "Server list ready.",
+  "browseServersRefreshedStatus": "Server info refreshed.",
+  "refreshStoppedStatus": "Refresh stopped. Tap Refresh to start again.",
+  "refreshingBrowseServersStatus": "Refreshing current server info...",
+  "geoFilterRemovedAllStatus": "Geo filter removed all {total} master server results before A2S.",
+  "@geoFilterRemovedAllStatus": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noServersToQueryStatus": "Steam Web API returned no servers to query.",
+  "foundServersQueryingStatus": "Found {count} servers from the Steam Web API. Querying live status...",
+  "@foundServersQueryingStatus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "geoFilterKeptStatus": "Geo filter kept {kept} / {total} master server results. Querying live status...",
+  "@geoFilterKeptStatus": {
+    "placeholders": {
+      "kept": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "updatedServersStatus": "Updated {completed} / {total} servers",
+  "@updatedServersStatus": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "loadedVisibleServersStatus": "Loaded {visible} visible servers from {total} master results.",
+  "@loadedVisibleServersStatus": {
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "loadedVisibleServersGeoStatus": "Loaded {visible} visible servers from {filtered} geo-filtered results ({total} master results).",
+  "@loadedVisibleServersGeoStatus": {
+    "placeholders": {
+      "visible": {
+        "type": "int"
+      },
+      "filtered": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "refreshingFavoritesStatus": "Refreshing favorites...",
+  "updatedFavoritesStatus": "Updated {completed} / {total} favorites",
+  "@updatedFavoritesStatus": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "favoritesRefreshedStatus": "Favorites refreshed.",
+  "favoriteRefreshFailedStatus": "Favorite refresh failed: {error}",
+  "@favoriteRefreshFailedStatus": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "refreshFailedStatus": "Refresh failed: {error}",
+  "@refreshFailedStatus": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+  "browseReadyPrompt": "Tap Scan to load servers for the current App ID.",
+  "browseNeedsKeyPrompt": "Open Settings, paste your Steam Web API key, then tap Scan to load servers.",
+  "favoritesReadyPrompt": "Tap refresh to load favorite server status.",
+  "favoritesEmptyPrompt": "Add favorites first, then tap refresh when you want to query them.",
+  "visibleCountLabel": "{count} visible",
+  "@visibleCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unknownMap": "Unknown map",
+  "infoTab": "Info",
+  "addressInfoLabel": "Address",
+  "playersInfoLabel": "Players",
+  "mapInfoLabel": "Map",
+  "pingInfoLabel": "Ping",
+  "versionInfoLabel": "Version",
+  "securityInfoLabel": "Security",
+  "passwordInfoLabel": "Password",
+  "countryInfoLabel": "Country",
+  "tagsInfoLabel": "Tags",
+  "securityVac": "VAC",
+  "securityOpen": "Open",
+  "yes": "Yes",
+  "no": "No",
+  "playersTab": "Players",
+  "rulesTab": "Rules",
+  "noPlayerDataTitle": "No player data",
+  "noPlayerDataBody": "This server did not return an A2S_PLAYER list.",
+  "noRuleDataTitle": "No rule data",
+  "noRuleDataBody": "This server did not return an A2S_RULES response.",
+  "unnamedPlayer": "Unnamed player",
+  "connectedDuration": "Connected {duration}",
+  "@connectedDuration": {
+    "placeholders": {
+      "duration": {}
+    }
+  },
+  "steamWebApiSummary": "Steam Web API",
+  "steamWebApiKeyRequiredSummary": "Steam Web API key required",
+  "geoDatabaseImportedSummary": "Geo MMDB imported",
+  "geoDatabaseNotImportedSummary": "Geo MMDB not imported",
+  "appNameFallback": "App {appId}",
+  "@appNameFallback": {
+    "placeholders": {
+      "appId": {
+        "type": "int"
+      }
+    }
+  },
+  "protocolFallback": "Protocol {protocol}",
+  "@protocolFallback": {
+    "placeholders": {
+      "protocol": {
+        "type": "int"
+      }
+    }
+  },
+  "enterSteamApiKeyBeforeScanningError": "Enter a 32-character Steam Web API key in Settings before scanning.",
+  "steamApiTimedOutError": "Steam Web API timed out. Check your network and try Scan again.",
+  "steamApiNetworkError": "Unable to reach the Steam Web API. Check your connection and try again.",
+  "steamApiRejectedKeyError": "Steam Web API rejected the key. Check that your key is valid.",
+  "steamApiRateLimitedError": "Steam Web API rate limited the request. Try again in a moment.",
+  "steamApiFailedStatusError": "Steam Web API failed with {statusCode}.",
+  "@steamApiFailedStatusError": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "steamApiNoServerAddressesError": "Steam Web API returned no server addresses.",
+  "selectedMmdbCouldNotBeOpenedError": "The selected .mmdb file could not be opened.",
+  "mmdbMissingCountryFieldError": "The selected MMDB does not expose a compatible country field.",
+  "selectedMmdbNoLongerAvailableError": "The selected .mmdb file is no longer available. Pick it again.",
+  "geoDatabaseFileNotFoundError": "Geo database file not found.",
+  "unableToResolveHostError": "Unable to resolve {host}.",
+  "@unableToResolveHostError": {
+    "placeholders": {
+      "host": {}
+    }
+  },
+  "serverReturnedEmptyReplyError": "Server returned an empty reply.",
+  "serverChallengePacketInvalidError": "Server challenge packet was invalid.",
+  "playerChallengePacketInvalidError": "Player challenge packet was invalid.",
+  "rulesChallengePacketInvalidError": "Rules challenge packet was invalid.",
+  "unsupportedA2sInfoHeaderError": "Unsupported A2S_INFO header: {header}",
+  "@unsupportedA2sInfoHeaderError": {
+    "placeholders": {
+      "header": {}
+    }
+  },
+  "unsupportedA2sPlayersHeaderError": "Unsupported A2S_PLAYER header: {header}",
+  "@unsupportedA2sPlayersHeaderError": {
+    "placeholders": {
+      "header": {}
+    }
+  },
+  "unsupportedA2sRulesHeaderError": "Unsupported A2S_RULES header: {header}",
+  "@unsupportedA2sRulesHeaderError": {
+    "placeholders": {
+      "header": {}
+    }
+  },
+  "serverQueryTimedOutError": "Server query timed out.",
+  "multipacketMalformedError": "Multipacket response was malformed.",
+  "serverPacketTooShortError": "Server packet was too short.",
+  "serverPacketHeaderInvalidError": "Server packet header was invalid.",
+  "malformedStringInServerPacketError": "Malformed string in server packet.",
+  "serverPacketEndedUnexpectedlyError": "Server packet ended unexpectedly."
+}
