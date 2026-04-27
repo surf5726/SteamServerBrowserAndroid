@@ -3,13 +3,8 @@
 
 This project targets Android only and is currently configured for `arm64-v8a` builds.
 
-<img width="1280" height="2856" alt="Screenshot_20260428_043923" src="https://github.com/user-attachments/assets/6708c227-be24-46df-b710-fe09c8db616e" />
-<img width="1280" height="2856" alt="Screenshot_20260428_043912" src="https://github.com/user-attachments/assets/b8d16ad7-ba00-4dee-a631-33acc7a72ea6" />
-<img width="1280" height="2856" alt="Screenshot_20260428_043900" src="https://github.com/user-attachments/assets/f3709151-a2fa-48cb-9789-5925716bbbcf" />
-<img width="1280" height="2856" alt="Screenshot_20260428_043810" src="https://github.com/user-attachments/assets/7534aebb-d754-4fee-8728-5191cfe2a1ee" />
-<img width="1280" height="2856" alt="Screenshot_20260428_043803" src="https://github.com/user-attachments/assets/b84536ee-ab02-4848-8c17-94d7d31498c9" />
-<img width="1280" height="2856" alt="Screenshot_20260428_043757" src="https://github.com/user-attachments/assets/5dccb83b-6a12-41ff-8dae-5d5902a473c3" />
-<img width="1280" height="2856" alt="Screenshot_20260428_043436" src="https://github.com/user-attachments/assets/af7dbc6b-6b29-4cf9-b181-6bda8175940f" />
+<img width="1280" height="19992" alt="08145d0b-0c81-4159-a860-5dae073b86a2" src="https://github.com/user-attachments/assets/2aafb20b-898f-41bc-9b0a-051bd31a264a" />
+
 
 
 ## Features
