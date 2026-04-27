@@ -3,9 +3,7 @@
 
 This project targets Android only and is currently configured for `arm64-v8a` builds.
 
-<img width="1280" height="19992" alt="08145d0b-0c81-4159-a860-5dae073b86a2" src="https://github.com/user-attachments/assets/2aafb20b-898f-41bc-9b0a-051bd31a264a" />
-
-
+<img width="8960" height="2856" alt="f17b3c14-ddb5-4de7-8664-2e49facdbd33" src="https://github.com/user-attachments/assets/a20ae4f6-0eb7-47a5-962a-3bbeae932db7" />
 
 ## Features
 
