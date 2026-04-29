@@ -81,7 +81,10 @@ class _ServerBrowserAppState extends State<ServerBrowserApp>
             widget.controller.refreshLocalizedIdleText();
           });
         }
-        return child ?? const SizedBox.shrink();
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: _systemUiOverlayStyle(Theme.of(context).colorScheme),
+          child: child ?? const SizedBox.shrink(),
+        );
       },
       home: HomeScreen(controller: widget.controller),
     );
@@ -108,9 +111,10 @@ ThemeData _buildAppTheme(Brightness brightness) {
         ),
       ),
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
+      systemOverlayStyle: _systemUiOverlayStyle(colorScheme),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -129,6 +133,21 @@ ThemeData _buildAppTheme(Brightness brightness) {
       surfaceTintColor: colorScheme.surfaceTint,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
     ),
+  );
+}
+
+SystemUiOverlayStyle _systemUiOverlayStyle(ColorScheme colorScheme) {
+  final useLightIcons = colorScheme.brightness == Brightness.dark;
+  final iconBrightness = useLightIcons ? Brightness.light : Brightness.dark;
+  final surfaceBrightness = useLightIcons ? Brightness.dark : Brightness.light;
+
+  return SystemUiOverlayStyle(
+    statusBarColor: colorScheme.surface,
+    statusBarIconBrightness: iconBrightness,
+    statusBarBrightness: surfaceBrightness,
+    systemNavigationBarColor: colorScheme.surface,
+    systemNavigationBarDividerColor: colorScheme.outlineVariant,
+    systemNavigationBarIconBrightness: iconBrightness,
   );
 }
 
@@ -919,20 +938,23 @@ class _ServerDetailScreenState extends State<ServerDetailScreen> {
                 ],
               ),
             ),
-            body: Column(
-              children: <Widget>[
-                if (details.isLoading)
-                  const LinearProgressIndicator(minHeight: 2),
-                Expanded(
-                  child: TabBarView(
-                    children: <Widget>[
-                      _InfoTab(server: server, details: details),
-                      _PlayersTab(players: details.players),
-                      _RulesTab(rules: details.rules),
-                    ],
+            body: SafeArea(
+              top: false,
+              child: Column(
+                children: <Widget>[
+                  if (details.isLoading)
+                    const LinearProgressIndicator(minHeight: 2),
+                  Expanded(
+                    child: TabBarView(
+                      children: <Widget>[
+                        _InfoTab(server: server, details: details),
+                        _PlayersTab(players: details.players),
+                        _RulesTab(rules: details.rules),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -1247,12 +1269,18 @@ class _FilterSheetState extends State<FilterSheet> {
               : l10n.geoImportedDatabaseStatus(_effectiveGeoDatabaseName))
         : l10n.geoImportDatabaseHint;
 
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final navigationInset = MediaQuery.viewPaddingOf(context).bottom;
+    final bottomInset = keyboardInset > navigationInset
+        ? keyboardInset
+        : navigationInset;
+
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
         right: 16,
         top: 16,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + 16,
+        bottom: bottomInset + 24,
       ),
       child: SingleChildScrollView(
         child: Column(
