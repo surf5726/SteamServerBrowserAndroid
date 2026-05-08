@@ -1,3 +1,4 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -65,38 +66,48 @@ class _ServerBrowserAppState extends State<ServerBrowserApp>
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-      themeMode: _themeBrightness == Brightness.dark
-          ? ThemeMode.dark
-          : ThemeMode.light,
-      theme: _buildAppTheme(Brightness.light),
-      darkTheme: _buildAppTheme(Brightness.dark),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      builder: (context, child) {
-        if (AppStrings.update(Localizations.localeOf(context))) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.controller.refreshLocalizedIdleText();
-          });
-        }
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: _systemUiOverlayStyle(Theme.of(context).colorScheme),
-          child: child ?? const SizedBox.shrink(),
+    return DynamicColorBuilder(
+      builder: (lightDynamic, darkDynamic) {
+        final lightScheme =
+            lightDynamic ?? _fallbackColorScheme(Brightness.light);
+        final darkScheme = darkDynamic ?? _fallbackColorScheme(Brightness.dark);
+
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          themeMode: _themeBrightness == Brightness.dark
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          theme: _buildAppTheme(lightScheme),
+          darkTheme: _buildAppTheme(darkScheme),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) {
+            if (AppStrings.update(Localizations.localeOf(context))) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                widget.controller.refreshLocalizedIdleText();
+              });
+            }
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: _systemUiOverlayStyle(Theme.of(context).colorScheme),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          home: HomeScreen(controller: widget.controller),
         );
       },
-      home: HomeScreen(controller: widget.controller),
     );
   }
 }
 
-ThemeData _buildAppTheme(Brightness brightness) {
-  final colorScheme = ColorScheme.fromSeed(
+ColorScheme _fallbackColorScheme(Brightness brightness) {
+  return ColorScheme.fromSeed(
     seedColor: const Color(0xFF2B8C6B),
     brightness: brightness,
   );
+}
 
+ThemeData _buildAppTheme(ColorScheme colorScheme) {
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
@@ -948,8 +959,14 @@ class _ServerDetailScreenState extends State<ServerDetailScreen> {
                     child: TabBarView(
                       children: <Widget>[
                         _InfoTab(server: server, details: details),
-                        _PlayersTab(players: details.players),
-                        _RulesTab(rules: details.rules),
+                        _PlayersTab(
+                          players: details.players,
+                          error: details.playersError,
+                        ),
+                        _RulesTab(
+                          rules: details.rules,
+                          error: details.rulesError,
+                        ),
                       ],
                     ),
                   ),
@@ -1591,8 +1608,9 @@ class _FilterSheetState extends State<FilterSheet> {
 
 class _PlayersTab extends StatelessWidget {
   final List<ServerPlayer> players;
+  final String? error;
 
-  const _PlayersTab({required this.players});
+  const _PlayersTab({required this.players, this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -1600,7 +1618,7 @@ class _PlayersTab extends StatelessWidget {
       return _EmptyState(
         icon: Icons.person_search_rounded,
         title: AppLocalizations.of(context).noPlayerDataTitle,
-        body: AppLocalizations.of(context).noPlayerDataBody,
+        body: error ?? AppLocalizations.of(context).noPlayerDataBody,
       );
     }
 
@@ -1635,8 +1653,9 @@ class _PlayersTab extends StatelessWidget {
 
 class _RulesTab extends StatelessWidget {
   final List<ServerRule> rules;
+  final String? error;
 
-  const _RulesTab({required this.rules});
+  const _RulesTab({required this.rules, this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -1644,7 +1663,7 @@ class _RulesTab extends StatelessWidget {
       return _EmptyState(
         icon: Icons.rule_rounded,
         title: AppLocalizations.of(context).noRuleDataTitle,
-        body: AppLocalizations.of(context).noRuleDataBody,
+        body: error ?? AppLocalizations.of(context).noRuleDataBody,
       );
     }
 

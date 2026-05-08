@@ -1,0 +1,7 @@
+Fixed server detail loading when A2S_RULES times out or is unsupported, so
+A2S_INFO and A2S_PLAYER data can still be shown independently.
+
+Added Android Material You dynamic color support, with the existing green theme
+kept as a fallback on devices without dynamic colors.
+
+Corrected the built-in Insurgency App ID to 222880.

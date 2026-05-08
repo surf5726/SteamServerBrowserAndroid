@@ -51,7 +51,8 @@ class ServerBrowserController extends ChangeNotifier {
   bool get isFavoritesBusy => _isFavoritesBusy;
   BrowseActivity get browseActivity => _browseActivity;
   int get navigationIndex => _navigationIndex;
-  String get currentGameName => gameNameForId(_browseGameId ?? _settings.gameId);
+  String get currentGameName =>
+      gameNameForId(_browseGameId ?? _settings.gameId);
   bool get canRefreshBrowseServers => _browseServers.isNotEmpty;
   int get browseServerTotalCount => _browseServers.length;
 
@@ -401,22 +402,33 @@ class ServerBrowserController extends ChangeNotifier {
       final supportsRules = _supportsRules(current);
 
       final playersFuture = supportsPlayers
-          ? serverQueryService.queryPlayers(address)
-          : Future<List<ServerPlayer>>.value(const <ServerPlayer>[]);
+          ? _captureDetailsQuery<List<ServerPlayer>>(
+              serverQueryService.queryPlayers(address),
+              const <ServerPlayer>[],
+            )
+          : Future<_DetailsQueryResult<List<ServerPlayer>>>.value(
+              const _DetailsQueryResult<List<ServerPlayer>>(
+                data: <ServerPlayer>[],
+              ),
+            );
       final rulesFuture = supportsRules
-          ? serverQueryService.queryRules(address)
-          : Future<List<ServerRule>>.value(const <ServerRule>[]);
-
-      final results = await Future.wait<dynamic>(<Future<dynamic>>[
-        playersFuture,
-        rulesFuture,
-      ]);
+          ? _captureDetailsQuery<List<ServerRule>>(
+              serverQueryService.queryRules(address),
+              const <ServerRule>[],
+            )
+          : Future<_DetailsQueryResult<List<ServerRule>>>.value(
+              const _DetailsQueryResult<List<ServerRule>>(data: <ServerRule>[]),
+            );
+      final playersResult = await playersFuture;
+      final rulesResult = await rulesFuture;
 
       _details[serverKey] = ServerDetailsState(
         isLoading: false,
         error: null,
-        players: results[0] as List<ServerPlayer>,
-        rules: results[1] as List<ServerRule>,
+        playersError: playersResult.error,
+        rulesError: rulesResult.error,
+        players: playersResult.data,
+        rules: rulesResult.data,
         updatedAt: DateTime.now(),
       );
     } catch (error) {
@@ -428,6 +440,17 @@ class ServerBrowserController extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<_DetailsQueryResult<T>> _captureDetailsQuery<T>(
+    Future<T> query,
+    T fallback,
+  ) async {
+    try {
+      return _DetailsQueryResult<T>(data: await query);
+    } catch (error) {
+      return _DetailsQueryResult<T>(data: fallback, error: '$error');
+    }
   }
 
   Future<ServerEntry> _queryServerInfo(ServerAddress address) async {
@@ -842,4 +865,11 @@ class ServerBrowserController extends ChangeNotifier {
     }
     return true;
   }
+}
+
+class _DetailsQueryResult<T> {
+  final T data;
+  final String? error;
+
+  const _DetailsQueryResult({required this.data, this.error});
 }

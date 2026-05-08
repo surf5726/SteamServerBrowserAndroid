@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -65,7 +66,18 @@ class _FakeMasterQueryService extends SteamMasterQueryService {
 
 class _FakeServerQueryService extends SteamServerQueryService {
   int queryInfoCalls = 0;
+  int queryPlayersCalls = 0;
+  int queryRulesCalls = 0;
   final List<String> queriedHosts = <String>[];
+  final int appId;
+  final List<ServerPlayer> players;
+  final Object? rulesError;
+
+  _FakeServerQueryService({
+    this.appId = 730,
+    this.players = const <ServerPlayer>[],
+    this.rulesError,
+  });
 
   @override
   Future<ServerInfoData> queryInfo(
@@ -81,7 +93,7 @@ class _FakeServerQueryService extends SteamServerQueryService {
       map: 'de_dust2',
       directory: 'csgo',
       description: 'test',
-      appId: 730,
+      appId: appId,
       players: 1,
       maxPlayers: 16,
       bots: 0,
@@ -92,9 +104,32 @@ class _FakeServerQueryService extends SteamServerQueryService {
       gameVersion: '1.0',
       pingMs: 42,
       port: address.port,
-      gameId: 730,
+      gameId: appId,
       keywords: '',
     );
+  }
+
+  @override
+  Future<List<ServerPlayer>> queryPlayers(
+    ServerAddress address, {
+    Duration timeout = const Duration(milliseconds: 1400),
+    int retries = 3,
+  }) async {
+    queryPlayersCalls++;
+    return players;
+  }
+
+  @override
+  Future<List<ServerRule>> queryRules(
+    ServerAddress address, {
+    Duration timeout = const Duration(milliseconds: 1400),
+    int retries = 3,
+  }) async {
+    queryRulesCalls++;
+    if (rulesError != null) {
+      throw rulesError!;
+    }
+    return const <ServerRule>[];
   }
 }
 
@@ -297,35 +332,38 @@ void main() {
     expect(controller.settings.hasGeoDatabase, isFalse);
   });
 
-  test('custom app ids resolve names through metadata lookup when scanning', () async {
-    final preferences = _FakePreferencesService(
-      settings: const BrowserSettings(masterServer: apiKey),
-    );
-    final metadata = _FakeAppMetadataService(
-      namesByAppId: const <int, String>{999999: 'My Custom Game'},
-    );
-    final controller = ServerBrowserController(
-      preferencesService: preferences,
-      masterQueryService: _FakeMasterQueryService(),
-      serverQueryService: _FakeServerQueryService(),
-      geoIpService: _FakeGeoIpService(),
-      appMetadataService: metadata,
-    );
+  test(
+    'custom app ids resolve names through metadata lookup when scanning',
+    () async {
+      final preferences = _FakePreferencesService(
+        settings: const BrowserSettings(masterServer: apiKey),
+      );
+      final metadata = _FakeAppMetadataService(
+        namesByAppId: const <int, String>{999999: 'My Custom Game'},
+      );
+      final controller = ServerBrowserController(
+        preferencesService: preferences,
+        masterQueryService: _FakeMasterQueryService(),
+        serverQueryService: _FakeServerQueryService(),
+        geoIpService: _FakeGeoIpService(),
+        appMetadataService: metadata,
+      );
 
-    await controller.initialize();
-    await controller.setGame(999999);
-    await Future<void>.delayed(Duration.zero);
+      await controller.initialize();
+      await controller.setGame(999999);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(metadata.lookupCalls, 0);
-    expect(controller.currentGameName, 'CounterStrike Global Offensive');
+      expect(metadata.lookupCalls, 0);
+      expect(controller.currentGameName, 'CounterStrike Global Offensive');
 
-    await controller.refreshBrowse();
-    await Future<void>.delayed(Duration.zero);
+      await controller.refreshBrowse();
+      await Future<void>.delayed(Duration.zero);
 
-    expect(metadata.lookupCalls, 1);
-    expect(controller.currentGameName, 'My Custom Game');
-    expect(preferences.appNameCache[999999], 'My Custom Game');
-  });
+      expect(metadata.lookupCalls, 1);
+      expect(controller.currentGameName, 'My Custom Game');
+      expect(preferences.appNameCache[999999], 'My Custom Game');
+    },
+  );
 
   test('app name lookup on scan works without steam web api key', () async {
     final metadata = _FakeAppMetadataService(
@@ -350,5 +388,35 @@ void main() {
 
     expect(metadata.lookupCalls, 1);
     expect(controller.currentGameName, 'My Custom Game');
+  });
+
+  test('server detail keeps player data when rules query times out', () async {
+    final address = ServerAddress('112.17.187.18', 11206);
+    final serverQuery = _FakeServerQueryService(
+      appId: 440,
+      players: const <ServerPlayer>[
+        ServerPlayer(name: 'Player One', score: 12, time: Duration(minutes: 3)),
+      ],
+      rulesError: TimeoutException('rules timed out'),
+    );
+    final controller = ServerBrowserController(
+      preferencesService: _FakePreferencesService(),
+      masterQueryService: _FakeMasterQueryService(),
+      serverQueryService: serverQuery,
+      geoIpService: _FakeGeoIpService(),
+      appMetadataService: _FakeAppMetadataService(),
+    );
+
+    await controller.initialize();
+    await controller.loadDetails(address);
+
+    final details = controller.detailsFor(address);
+    expect(details.error, isNull);
+    expect(details.players, hasLength(1));
+    expect(details.rules, isEmpty);
+    expect(details.playersError, isNull);
+    expect(details.rulesError, contains('rules timed out'));
+    expect(serverQuery.queryPlayersCalls, 1);
+    expect(serverQuery.queryRulesCalls, 1);
   });
 }

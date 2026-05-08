@@ -58,7 +58,7 @@ const List<GameDefinition> supportedGames = <GameDefinition>[
   GameDefinition(17550, 'Eternal Silence'),
   GameDefinition(17570, 'Pirates Vikings And Knights II'),
   GameDefinition(17580, 'Dystopia'),
-  GameDefinition(17700, 'Insurgency'),
+  GameDefinition(222880, 'Insurgency'),
   GameDefinition(17710, 'Nuclear Dawn'),
   GameDefinition(17730, 'Smashball'),
   GameDefinition(107410, 'Arma 3'),
@@ -541,6 +541,8 @@ class ServerEntry {
 class ServerDetailsState {
   final bool isLoading;
   final String? error;
+  final String? playersError;
+  final String? rulesError;
   final List<ServerPlayer> players;
   final List<ServerRule> rules;
   final DateTime? updatedAt;
@@ -548,6 +550,8 @@ class ServerDetailsState {
   const ServerDetailsState({
     this.isLoading = false,
     this.error,
+    this.playersError,
+    this.rulesError,
     this.players = const <ServerPlayer>[],
     this.rules = const <ServerRule>[],
     this.updatedAt,
@@ -556,6 +560,8 @@ class ServerDetailsState {
   ServerDetailsState copyWith({
     bool? isLoading,
     String? error,
+    String? playersError,
+    String? rulesError,
     List<ServerPlayer>? players,
     List<ServerRule>? rules,
     DateTime? updatedAt,
@@ -563,6 +569,8 @@ class ServerDetailsState {
     return ServerDetailsState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      playersError: playersError,
+      rulesError: rulesError,
       players: players ?? this.players,
       rules: rules ?? this.rules,
       updatedAt: updatedAt ?? this.updatedAt,

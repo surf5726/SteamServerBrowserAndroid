@@ -4,6 +4,7 @@ import 'package:steam_server_browser_flutter/src/models.dart';
 void main() {
   test('game lookup returns known names', () {
     expect(gameForId(730).name, 'CounterStrike Global Offensive');
+    expect(gameForId(222880).name, 'Insurgency');
     expect(gameForId(999999).name, 'App 999999');
   });
 
