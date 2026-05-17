@@ -808,6 +808,12 @@ abstract class AppLocalizations {
   /// **'Version'**
   String get versionInfoLabel;
 
+  /// No description provided for @operatingSystemInfoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating system'**
+  String get operatingSystemInfoLabel;
+
   /// No description provided for @securityInfoLabel.
   ///
   /// In en, this message translates to:

@@ -71,11 +71,17 @@ class _FakeServerQueryService extends SteamServerQueryService {
   final List<String> queriedHosts = <String>[];
   final int appId;
   final List<ServerPlayer> players;
+  final Map<String, String> namesByHost;
+  final Map<String, int> pingsByHost;
+  final Future<List<ServerRule>>? rulesFuture;
   final Object? rulesError;
 
   _FakeServerQueryService({
     this.appId = 730,
     this.players = const <ServerPlayer>[],
+    this.namesByHost = const <String, String>{},
+    this.pingsByHost = const <String, int>{},
+    this.rulesFuture,
     this.rulesError,
   });
 
@@ -89,7 +95,7 @@ class _FakeServerQueryService extends SteamServerQueryService {
     queriedHosts.add(address.host);
     return ServerInfoData(
       address: address.label,
-      name: 'Test Server',
+      name: namesByHost[address.host] ?? 'Test Server',
       map: 'de_dust2',
       directory: 'csgo',
       description: 'test',
@@ -102,7 +108,7 @@ class _FakeServerQueryService extends SteamServerQueryService {
       isPrivate: false,
       isSecure: true,
       gameVersion: '1.0',
-      pingMs: 42,
+      pingMs: pingsByHost[address.host] ?? 42,
       port: address.port,
       gameId: appId,
       keywords: '',
@@ -126,6 +132,9 @@ class _FakeServerQueryService extends SteamServerQueryService {
     int retries = 3,
   }) async {
     queryRulesCalls++;
+    if (rulesFuture != null) {
+      return rulesFuture!;
+    }
     if (rulesError != null) {
       throw rulesError!;
     }
@@ -268,6 +277,92 @@ void main() {
 
       expect(masterQuery.queryServersCalls, 1);
       expect(serverQuery.queryInfoCalls, 4);
+    },
+  );
+
+  test('server list sorts by name when no geo database is imported', () async {
+    final masterQuery = _FakeMasterQueryService(
+      addresses: const <ServerAddress>[
+        ServerAddress('1.1.1.1', 27015),
+        ServerAddress('2.2.2.2', 27015),
+      ],
+    );
+    final serverQuery = _FakeServerQueryService(
+      namesByHost: const <String, String>{
+        '1.1.1.1': 'Zulu Server',
+        '2.2.2.2': 'Alpha Server',
+      },
+      pingsByHost: const <String, int>{'1.1.1.1': 10, '2.2.2.2': 120},
+    );
+    final controller = ServerBrowserController(
+      preferencesService: _FakePreferencesService(
+        settings: const BrowserSettings(masterServer: apiKey),
+      ),
+      masterQueryService: masterQuery,
+      serverQueryService: serverQuery,
+      geoIpService: _FakeGeoIpService(),
+      appMetadataService: _FakeAppMetadataService(),
+    );
+
+    await controller.initialize();
+    await controller.refreshBrowse();
+
+    expect(controller.browseServers.map((server) => server.title), <String>[
+      'Alpha Server',
+      'Zulu Server',
+    ]);
+  });
+
+  test(
+    'server list sorts by country then name when geo database is imported',
+    () async {
+      final masterQuery = _FakeMasterQueryService(
+        addresses: const <ServerAddress>[
+          ServerAddress('1.1.1.1', 27015),
+          ServerAddress('2.2.2.2', 27015),
+          ServerAddress('3.3.3.3', 27015),
+        ],
+      );
+      final serverQuery = _FakeServerQueryService(
+        namesByHost: const <String, String>{
+          '1.1.1.1': 'Alpha Server',
+          '2.2.2.2': 'Zulu Server',
+          '3.3.3.3': 'Beta Server',
+        },
+        pingsByHost: const <String, int>{
+          '1.1.1.1': 10,
+          '2.2.2.2': 120,
+          '3.3.3.3': 1,
+        },
+      );
+      final controller = ServerBrowserController(
+        preferencesService: _FakePreferencesService(
+          settings: const BrowserSettings(
+            masterServer: apiKey,
+            geoDatabasePath: '/tmp/ipinfo-country.mmdb',
+            geoDatabaseName: 'country_asn.mmdb',
+          ),
+        ),
+        masterQueryService: masterQuery,
+        serverQueryService: serverQuery,
+        geoIpService: _FakeGeoIpService(
+          countriesByHost: const <String, GeoCountry>{
+            '1.1.1.1': GeoCountry(code: 'US', name: 'United States'),
+            '2.2.2.2': GeoCountry(code: 'DE', name: 'Germany'),
+            '3.3.3.3': GeoCountry(code: 'DE', name: 'Germany'),
+          },
+        ),
+        appMetadataService: _FakeAppMetadataService(),
+      );
+
+      await controller.initialize();
+      await controller.refreshBrowse();
+
+      expect(controller.browseServers.map((server) => server.title), <String>[
+        'Beta Server',
+        'Zulu Server',
+        'Alpha Server',
+      ]);
     },
   );
 
@@ -418,5 +513,50 @@ void main() {
     expect(details.rulesError, contains('rules timed out'));
     expect(serverQuery.queryPlayersCalls, 1);
     expect(serverQuery.queryRulesCalls, 1);
+  });
+
+  test('server detail publishes players before slow rules finish', () async {
+    final address = ServerAddress('112.17.187.18', 11206);
+    final rulesCompleter = Completer<List<ServerRule>>();
+    final serverQuery = _FakeServerQueryService(
+      appId: 440,
+      players: const <ServerPlayer>[
+        ServerPlayer(name: 'Player One', score: 12, time: Duration(minutes: 3)),
+      ],
+      rulesFuture: rulesCompleter.future,
+    );
+    final controller = ServerBrowserController(
+      preferencesService: _FakePreferencesService(),
+      masterQueryService: _FakeMasterQueryService(),
+      serverQueryService: serverQuery,
+      geoIpService: _FakeGeoIpService(),
+      appMetadataService: _FakeAppMetadataService(),
+    );
+    final playersPublished = Completer<void>();
+
+    await controller.initialize();
+    controller.addListener(() {
+      if (!playersPublished.isCompleted &&
+          controller.detailsFor(address).players.isNotEmpty) {
+        playersPublished.complete();
+      }
+    });
+
+    final loadFuture = controller.loadDetails(address);
+    await playersPublished.future.timeout(const Duration(seconds: 1));
+
+    var details = controller.detailsFor(address);
+    expect(details.players, hasLength(1));
+    expect(details.rules, isEmpty);
+    expect(details.isLoading, isTrue);
+
+    rulesCompleter.completeError(TimeoutException('rules timed out'));
+    await loadFuture;
+
+    details = controller.detailsFor(address);
+    expect(details.players, hasLength(1));
+    expect(details.rules, isEmpty);
+    expect(details.isLoading, isFalse);
+    expect(details.rulesError, contains('rules timed out'));
   });
 }

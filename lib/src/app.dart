@@ -1707,6 +1707,7 @@ class _InfoTab extends StatelessWidget {
         value: info != null ? '${info.pingMs} ms' : '--',
       ),
       (label: l10n.countryInfoLabel, value: server.country?.label ?? '--'),
+      (label: l10n.operatingSystemInfoLabel, value: info?.environment ?? '--'),
       (label: l10n.versionInfoLabel, value: info?.gameVersion ?? '--'),
       (
         label: l10n.securityInfoLabel,

@@ -237,6 +237,7 @@
   "mapInfoLabel": "Map",
   "pingInfoLabel": "Ping",
   "versionInfoLabel": "Version",
+  "operatingSystemInfoLabel": "Operating system",
   "securityInfoLabel": "Security",
   "passwordInfoLabel": "Password",
   "countryInfoLabel": "Country",

@@ -36,6 +36,7 @@ class ServerBrowserController extends ChangeNotifier {
   List<ServerEntry> _favoriteServers = const <ServerEntry>[];
   final Map<String, ServerDetailsState> _details =
       <String, ServerDetailsState>{};
+  final Map<String, int> _detailsRequestIds = <String, int>{};
   String _statusText = AppStrings.current.browseNeedsKeyPrompt;
   bool _isBrowseBusy = false;
   bool _isFavoritesBusy = false;
@@ -386,6 +387,8 @@ class ServerBrowserController extends ChangeNotifier {
   Future<void> loadDetails(ServerAddress address) async {
     final server = findServer(address);
     final serverKey = address.key;
+    final requestId = (_detailsRequestIds[serverKey] ?? 0) + 1;
+    _detailsRequestIds[serverKey] = requestId;
     _details[serverKey] = detailsFor(
       address,
     ).copyWith(isLoading: true, error: null, updatedAt: DateTime.now());
@@ -395,51 +398,64 @@ class ServerBrowserController extends ChangeNotifier {
       var current = server;
       if (current?.info == null) {
         current = await _queryServerInfo(address);
+        if (!_isActiveDetailsRequest(serverKey, requestId)) {
+          return;
+        }
         _replaceServer(current, inBrowse: true, inFavorites: true);
+        notifyListeners();
       }
 
       final supportsPlayers = _supportsPlayers(current);
       final supportsRules = _supportsRules(current);
 
-      final playersFuture = supportsPlayers
-          ? _captureDetailsQuery<List<ServerPlayer>>(
-              serverQueryService.queryPlayers(address),
-              const <ServerPlayer>[],
-            )
-          : Future<_DetailsQueryResult<List<ServerPlayer>>>.value(
-              const _DetailsQueryResult<List<ServerPlayer>>(
-                data: <ServerPlayer>[],
-              ),
-            );
-      final rulesFuture = supportsRules
-          ? _captureDetailsQuery<List<ServerRule>>(
-              serverQueryService.queryRules(address),
-              const <ServerRule>[],
-            )
-          : Future<_DetailsQueryResult<List<ServerRule>>>.value(
-              const _DetailsQueryResult<List<ServerRule>>(data: <ServerRule>[]),
-            );
-      final playersResult = await playersFuture;
-      final rulesResult = await rulesFuture;
+      final detailTasks = <Future<void>>[];
+      if (supportsPlayers) {
+        detailTasks.add(
+          _captureDetailsQuery<List<ServerPlayer>>(
+            serverQueryService.queryPlayers(address),
+            const <ServerPlayer>[],
+          ).then(
+            (result) =>
+                _applyPlayersDetailsResult(serverKey, requestId, result),
+          ),
+        );
+      } else {
+        _applyPlayersDetailsResult(
+          serverKey,
+          requestId,
+          const _DetailsQueryResult<List<ServerPlayer>>(data: <ServerPlayer>[]),
+        );
+      }
+      if (supportsRules) {
+        detailTasks.add(
+          _captureDetailsQuery<List<ServerRule>>(
+            serverQueryService.queryRules(address),
+            const <ServerRule>[],
+          ).then(
+            (result) => _applyRulesDetailsResult(serverKey, requestId, result),
+          ),
+        );
+      } else {
+        _applyRulesDetailsResult(
+          serverKey,
+          requestId,
+          const _DetailsQueryResult<List<ServerRule>>(data: <ServerRule>[]),
+        );
+      }
 
-      _details[serverKey] = ServerDetailsState(
-        isLoading: false,
-        error: null,
-        playersError: playersResult.error,
-        rulesError: rulesResult.error,
-        players: playersResult.data,
-        rules: rulesResult.data,
-        updatedAt: DateTime.now(),
-      );
+      await Future.wait(detailTasks);
+      _finishDetailsLoading(serverKey, requestId);
     } catch (error) {
+      if (!_isActiveDetailsRequest(serverKey, requestId)) {
+        return;
+      }
       _details[serverKey] = ServerDetailsState(
         isLoading: false,
         error: '$error',
         updatedAt: DateTime.now(),
       );
+      notifyListeners();
     }
-
-    notifyListeners();
   }
 
   Future<_DetailsQueryResult<T>> _captureDetailsQuery<T>(
@@ -451,6 +467,65 @@ class ServerBrowserController extends ChangeNotifier {
     } catch (error) {
       return _DetailsQueryResult<T>(data: fallback, error: '$error');
     }
+  }
+
+  void _applyPlayersDetailsResult(
+    String serverKey,
+    int requestId,
+    _DetailsQueryResult<List<ServerPlayer>> result,
+  ) {
+    if (!_isActiveDetailsRequest(serverKey, requestId)) {
+      return;
+    }
+    final previous = _details[serverKey] ?? const ServerDetailsState();
+    _details[serverKey] = ServerDetailsState(
+      isLoading: previous.isLoading,
+      error: previous.error,
+      playersError: result.error,
+      rulesError: previous.rulesError,
+      players: result.data,
+      rules: previous.rules,
+      updatedAt: DateTime.now(),
+    );
+    notifyListeners();
+  }
+
+  void _applyRulesDetailsResult(
+    String serverKey,
+    int requestId,
+    _DetailsQueryResult<List<ServerRule>> result,
+  ) {
+    if (!_isActiveDetailsRequest(serverKey, requestId)) {
+      return;
+    }
+    final previous = _details[serverKey] ?? const ServerDetailsState();
+    _details[serverKey] = ServerDetailsState(
+      isLoading: previous.isLoading,
+      error: previous.error,
+      playersError: previous.playersError,
+      rulesError: result.error,
+      players: previous.players,
+      rules: result.data,
+      updatedAt: DateTime.now(),
+    );
+    notifyListeners();
+  }
+
+  void _finishDetailsLoading(String serverKey, int requestId) {
+    if (!_isActiveDetailsRequest(serverKey, requestId)) {
+      return;
+    }
+    final previous = _details[serverKey] ?? const ServerDetailsState();
+    _details[serverKey] = ServerDetailsState(
+      isLoading: false,
+      error: previous.error,
+      playersError: previous.playersError,
+      rulesError: previous.rulesError,
+      players: previous.players,
+      rules: previous.rules,
+      updatedAt: DateTime.now(),
+    );
+    notifyListeners();
   }
 
   Future<ServerEntry> _queryServerInfo(ServerAddress address) async {
@@ -545,16 +620,56 @@ class ServerBrowserController extends ChangeNotifier {
           ),
         )
         .toList();
-    filtered.sort((left, right) {
-      final leftPing = left.info?.pingMs ?? 1 << 30;
-      final rightPing = right.info?.pingMs ?? 1 << 30;
-      final pingOrder = leftPing.compareTo(rightPing);
-      if (pingOrder != 0) {
-        return pingOrder;
-      }
-      return left.title.toLowerCase().compareTo(right.title.toLowerCase());
-    });
+    filtered.sort(_compareServerListEntries);
     return filtered;
+  }
+
+  int _compareServerListEntries(ServerEntry left, ServerEntry right) {
+    if (_settings.hasGeoDatabase && geoIpService.isReady) {
+      final countryOrder = _compareCountrySortKeys(left, right);
+      if (countryOrder != 0) {
+        return countryOrder;
+      }
+    }
+
+    return _compareServerNames(left, right);
+  }
+
+  int _compareCountrySortKeys(ServerEntry left, ServerEntry right) {
+    final leftCountry = left.country;
+    final rightCountry = right.country;
+    if (leftCountry == null && rightCountry != null) {
+      return 1;
+    }
+    if (leftCountry != null && rightCountry == null) {
+      return -1;
+    }
+    if (leftCountry == null && rightCountry == null) {
+      return 0;
+    }
+
+    final codeOrder = leftCountry!.code.toUpperCase().compareTo(
+      rightCountry!.code.toUpperCase(),
+    );
+    if (codeOrder != 0) {
+      return codeOrder;
+    }
+
+    return leftCountry.name.toLowerCase().compareTo(
+      rightCountry.name.toLowerCase(),
+    );
+  }
+
+  int _compareServerNames(ServerEntry left, ServerEntry right) {
+    final titleOrder = left.title.toLowerCase().compareTo(
+      right.title.toLowerCase(),
+    );
+    if (titleOrder != 0) {
+      return titleOrder;
+    }
+    return left.address.label.toLowerCase().compareTo(
+      right.address.label.toLowerCase(),
+    );
   }
 
   bool _passesClientFilter(
@@ -653,6 +768,8 @@ class ServerBrowserController extends ChangeNotifier {
   bool _isActiveBrowseRequest(int requestId) => _browseRequestId == requestId;
   bool _isActiveFavoritesRequest(int requestId) =>
       _favoritesRequestId == requestId;
+  bool _isActiveDetailsRequest(String serverKey, int requestId) =>
+      _detailsRequestIds[serverKey] == requestId;
 
   String _browsePrompt({required String customMessage}) {
     if (!_settings.hasSteamWebApiKey) {

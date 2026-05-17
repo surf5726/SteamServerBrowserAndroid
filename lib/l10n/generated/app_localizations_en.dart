@@ -417,6 +417,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get versionInfoLabel => 'Version';
 
   @override
+  String get operatingSystemInfoLabel => 'Operating system';
+
+  @override
   String get securityInfoLabel => 'Security';
 
   @override

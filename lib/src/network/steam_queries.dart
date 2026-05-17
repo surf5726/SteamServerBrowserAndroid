@@ -450,7 +450,7 @@ class SteamServerQueryService {
       final environment = switch (parser.readUint8()) {
         0x6C => 'Linux',
         0x77 => 'Windows',
-        0x6D => 'Mac',
+        0x6D => 'macOS',
         _ => 'Unknown',
       };
       final isPrivate = parser.readUint8() != 0;
