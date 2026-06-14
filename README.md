@@ -1,9 +1,12 @@
-# SteamServerBrowser (Flutter / Android)
- [SteamServerBrowser](https://github.com/PredatH0r/SteamServerBrowser) Android flutter remake, focused on server discovery and compatibility with A2S-based querying.
+# SteamServerBrowser
 
-This project targets Android only and is currently configured for `arm64-v8a` builds.
+An Android Flutter remake of
+[SteamServerBrowser](https://github.com/PredatH0r/SteamServerBrowser), focused
+on Steam server discovery and A2S query compatibility.
 
-<img width="8960" height="2856" alt="f17b3c14-ddb5-4de7-8664-2e49facdbd33" src="https://github.com/user-attachments/assets/a20ae4f6-0eb7-47a5-962a-3bbeae932db7" />
+The project currently targets Android `arm64-v8a`.
+
+<img width="8960" height="2856" alt="SteamServerBrowser screenshots" src="https://github.com/user-attachments/assets/a20ae4f6-0eb7-47a5-962a-3bbeae932db7" />
 
 ## Features
 
@@ -11,100 +14,58 @@ This project targets Android only and is currently configured for `arm64-v8a` bu
 - Live `A2S_INFO`, `A2S_PLAYER`, and `A2S_RULES` queries
 - Custom `App ID` input with automatic game-name lookup
 - Favorites and manual `IP:port` server entries
-- Browse refresh that updates current server info without re-fetching the master list
-- Offline GeoIP country filtering with user-imported `.mmdb`
-- Query filters for map, tags, ping, players, and result limit
-- Embedded Cronet-based HTTP client for Android builds
-- Localization scaffold based on Flutter `l10n` / ARB files
-
-## Current Scope
-
-- Platform: Android
-- ABI: `arm64-v8a` only
-- Default UI language in this repo: English
-- Release builds currently use the debug signing config by default
-- Android application id:
-  `com.steamserverbrowser.app`
-
-If you plan to publish your own APK outside F-Droid, update the signing config first.
+- Map, tag, ping, player-count, country, and result-limit filters
+- Offline GeoIP filtering with a user-imported `.mmdb` database
+- Embedded Cronet HTTP client without a Google Play Services dependency
+- System-language UI with all languages supported by Flutter Material
 
 ## Requirements
 
 - Flutter SDK
-- Android SDK / command-line tools
+- Android SDK and command-line tools
 - JDK 17
-- An Android device or emulator if you want to run it locally
+- Android device or emulator
 
-## Run Locally
+## Run
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-## Build Release APK
+## Build
 
 ```bash
 flutter build apk --release --target-platform android-arm64
 ```
 
-The project is already configured to exclude non-`arm64-v8a` native libraries from the final APK.
+Only `arm64-v8a` native libraries are included in the APK. Release builds use
+the debug signing configuration by default, so configure a release signing key
+before publishing an APK.
 
-## Steam Web API Key
+## Steam Web API
 
-Master list browsing requires a Steam Web API key.
+Master-list scans require a 32-character Steam Web API key. The Settings screen
+links to:
 
-The app includes a shortcut button in `Settings` that opens:
+<https://steamcommunity.com/dev/apikey>
 
-- `https://steamcommunity.com/dev/apikey`
+## GeoIP
 
-## GeoIP / MMDB
+Country filtering is enabled after importing a compatible `.mmdb` database.
+[ipinfo Lite](https://ipinfo.io/lite) is a suitable source.
 
-Geo filtering is disabled until the user imports an offline `.mmdb` database.
+## Localization
 
-Recommended MMDB source:
+The UI follows the Android system language and does not include an in-app
+language switch. Unsupported locales fall back to English.
 
-- [ipinfo Lite](https://ipinfo.io/lite)
+Translation sources are stored in `lib/l10n/app_*.arb`. The project covers all
+82 language codes supported by Flutter Material.
 
-After importing a supported MMDB:
+The product title `Steam Server Browser` remains unchanged in every language.
 
-- the app can resolve country data for server IPs
-- country include / exclude filters become available
-
-## Builds Without Google Play Services
-
-This repo is configured to use embedded Cronet by default:
-
-- `android/gradle.properties` contains `cronetHttpNoPlay=true` via `dart-defines`
-
-That means Android builds from this repo do not depend on Google Play Services Cronet to start.
-
-## F-Droid
-
-F-Droid preparation files are included:
-
-- `fastlane/metadata/android/en-US/`
-- `fdroid/metadata/com.steamserverbrowser.app.yml`
-- `fdroid/SUBMISSION.md`
-
-Before submitting to F-Droid, publish this repo publicly under
-`https://github.com/surf5726/SteamServerBrowserAndroid` and tag the release
-commit.
-
-## Translations
-
-Flutter localization is set up with:
-
-- `l10n.yaml`
-- `lib/l10n/app_en.arb`
-- generated files in `lib/l10n/generated/`
-
-To add another language, create a new ARB file such as:
-
-- `lib/l10n/app_es.arb`
-- `lib/l10n/app_ru.arb`
-
-Then run:
+Regenerate localization classes after editing ARB files:
 
 ```bash
 flutter gen-l10n
@@ -112,21 +73,21 @@ flutter gen-l10n
 
 ## Project Layout
 
-- `lib/src/app.dart`: main UI
-- `lib/src/controller/server_browser_controller.dart`: app state and orchestration
-- `lib/src/network/steam_queries.dart`: Steam Web API and A2S query logic
-- `lib/src/network/app_metadata_http_client_manager.dart`: app-name HTTP client
+- `lib/src/app.dart`: UI and system-locale resolution
+- `lib/src/controller/server_browser_controller.dart`: state and orchestration
+- `lib/src/network/steam_queries.dart`: Steam Web API and A2S queries
 - `lib/src/geo/geo_ip_service.dart`: MMDB import and lookup
-- `lib/src/persistence/preferences_service.dart`: local settings / favorites persistence
-- `lib/l10n/`: translation resources
+- `lib/src/persistence/preferences_service.dart`: settings and favorites
+- `lib/l10n/`: translation resources and generated classes
+- `test/`: unit and localization tests
 
 ## Notes
 
-- Browse and Favorites are button-driven; there is no pull-to-refresh behavior.
-- The browse page has separate `Scan` and `Refresh` actions:
-  `Scan` fetches a new master list, while `Refresh` only updates the currently loaded server entries.
-- `Result limit` is capped at `10000`.
+- `Scan` fetches a new master list and queries its servers.
+- `Refresh` updates only the currently loaded server entries.
+- Browse and Favorites use explicit buttons instead of pull-to-refresh.
+- The result limit is capped at `10000`.
 
-## License / Dependency Note
+## License
 
-Review third-party dependency licenses before distributing binaries. In particular, offline MMDB support is implemented with external packages and their licenses should be checked against your intended distribution model.
+See [LICENSE](LICENSE).

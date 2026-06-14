@@ -38,9 +38,7 @@ class SteamAppMetadataService {
           queryParameters: <String, String>{
             'appids': '$appId',
             'filters': 'basic',
-            'l': AppStrings.currentLocale.languageCode == 'zh'
-                ? 'schinese'
-                : 'english',
+            'l': AppStrings.steamLanguageCode,
           },
         );
 
@@ -638,8 +636,11 @@ class SteamServerQueryService {
       }
     }
 
-    if (lastError is Exception) {
-      throw lastError;
+    if (lastError is TimeoutException) {
+      throw SteamQueryException(AppStrings.current.serverStatusTimedOut);
+    }
+    if (lastError is SocketException) {
+      throw SteamQueryException(AppStrings.current.serverStatusNetworkError);
     }
     throw SteamQueryException(AppStrings.current.serverQueryTimedOutError);
   }

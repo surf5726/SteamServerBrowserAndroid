@@ -393,7 +393,7 @@ class ServerAddress {
   factory ServerAddress.parse(String raw, {int defaultPort = 27015}) {
     final text = raw.trim();
     if (text.isEmpty) {
-      throw const FormatException('Address cannot be empty.');
+      throw FormatException(AppStrings.current.addressCannotBeEmptyError);
     }
 
     final index = text.lastIndexOf(':');
@@ -404,7 +404,7 @@ class ServerAddress {
     final host = text.substring(0, index).trim();
     final port = int.tryParse(text.substring(index + 1).trim());
     if (host.isEmpty || port == null || port < 1 || port > 65535) {
-      throw FormatException('Invalid address: $raw');
+      throw FormatException(AppStrings.current.invalidAddressError(raw));
     }
 
     return ServerAddress(host, port);
@@ -462,7 +462,7 @@ class ServerInfoData {
   String get playersLabel {
     final base = '$realPlayers / $maxPlayers';
     if (bots > 0) {
-      return '$base ($bots bots)';
+      return '$base (${AppStrings.current.botsCountLabel(bots)})';
     }
     return base;
   }
@@ -513,6 +513,14 @@ class ServerEntry {
   }
 
   bool get isResponsive => info != null;
+
+  String get statusLabel => switch (status) {
+    'idle' => AppStrings.current.serverStatusIdle,
+    'queued' => AppStrings.current.serverStatusQueued,
+    'timeout' => AppStrings.current.serverStatusTimedOut,
+    'network error' => AppStrings.current.serverStatusNetworkError,
+    _ => status,
+  };
 
   bool get hasTimeout =>
       status.toLowerCase().startsWith('timeout') ||

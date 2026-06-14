@@ -1,4 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:steam_server_browser_flutter/l10n/generated/app_localizations.dart';
+import 'package:steam_server_browser_flutter/src/l10n/app_strings.dart';
+import 'package:steam_server_browser_flutter/src/l10n/locale_resolution.dart';
 import 'package:steam_server_browser_flutter/src/models.dart';
 
 void main() {
@@ -88,5 +92,37 @@ void main() {
       10000,
     );
     expect(BrowserSettings.decode('{"resultLimit":25000}').resultLimit, 10000);
+  });
+
+  test('localizations follow system language and preserve the app title', () {
+    final chinese = lookupAppLocalizations(
+      resolveAppLocale(const Locale('zh')),
+    );
+    final traditional = lookupAppLocalizations(
+      resolveAppLocale(const Locale('zh', 'TW')),
+    );
+
+    expect(chinese.settingsTitle, '设置');
+    expect(traditional.settingsTitle, '設定');
+    expect(chinese.appTitle, 'Steam Server Browser');
+    expect(traditional.appTitle, 'Steam Server Browser');
+  });
+
+  test('unsupported system languages fall back to English', () {
+    expect(resolveAppLocale(const Locale('xx', 'ZZ')), const Locale('en'));
+  });
+
+  test('background strings and Steam language follow the resolved locale', () {
+    addTearDown(() => AppStrings.update(const Locale('en')));
+
+    AppStrings.update(const Locale('zh', 'TW'));
+    expect(AppStrings.current.settingsTitle, '設定');
+    expect(AppStrings.steamLanguageCode, 'tchinese');
+
+    AppStrings.update(const Locale('de', 'DE'));
+    expect(AppStrings.steamLanguageCode, 'german');
+
+    AppStrings.update(const Locale('sw', 'TZ'));
+    expect(AppStrings.steamLanguageCode, 'english');
   });
 }

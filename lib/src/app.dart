@@ -7,6 +7,7 @@ import '../l10n/generated/app_localizations.dart';
 import 'controller/server_browser_controller.dart';
 import 'geo/geo_ip_service.dart';
 import 'l10n/app_strings.dart';
+import 'l10n/locale_resolution.dart';
 import 'models.dart';
 import 'system_theme_service.dart';
 
@@ -82,6 +83,8 @@ class _ServerBrowserAppState extends State<ServerBrowserApp>
           darkTheme: _buildAppTheme(darkScheme),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
+          localeListResolutionCallback: (preferredLocales, supportedLocales) =>
+              resolveAppLocaleList(preferredLocales),
           builder: (context, child) {
             if (AppStrings.update(Localizations.localeOf(context))) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -848,7 +851,7 @@ class ServerCard extends StatelessWidget {
                         icon: Icons.map_rounded,
                       ),
                       _MetricPill(
-                        label: info?.playersLabel ?? server.status,
+                        label: info?.playersLabel ?? server.statusLabel,
                         icon: Icons.groups_rounded,
                       ),
                       _MetricPill(

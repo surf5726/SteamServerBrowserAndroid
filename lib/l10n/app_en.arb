@@ -119,6 +119,13 @@
   "noFavoriteServersBody": "Star a server from the browser list, or add one manually by address.",
   "addFavoriteServerTitle": "Add favorite server",
   "addFavoriteServerHint": "Paste one or more IP:port addresses",
+  "addressCannotBeEmptyError": "Address cannot be empty.",
+  "invalidAddressError": "Invalid address: {address}",
+  "@invalidAddressError": {
+    "placeholders": {
+      "address": {}
+    }
+  },
   "invalidNumericAppId": "Enter a valid numeric App ID.",
   "favoritesSavedStatus": "Favorites saved. Tap refresh to query them.",
   "gameChangedStatus": "Game changed. Tap Scan to refresh the server list.",
@@ -230,6 +237,18 @@
       }
     }
   },
+  "botsCountLabel": "{count} bots",
+  "@botsCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "serverStatusIdle": "Idle",
+  "serverStatusQueued": "Queued",
+  "serverStatusTimedOut": "Timed out",
+  "serverStatusNetworkError": "Network error",
   "unknownMap": "Unknown map",
   "infoTab": "Info",
   "addressInfoLabel": "Address",

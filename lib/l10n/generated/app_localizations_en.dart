@@ -283,6 +283,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFavoriteServerHint => 'Paste one or more IP:port addresses';
 
   @override
+  String get addressCannotBeEmptyError => 'Address cannot be empty.';
+
+  @override
+  String invalidAddressError(Object address) {
+    return 'Invalid address: $address';
+  }
+
+  @override
   String get invalidNumericAppId => 'Enter a valid numeric App ID.';
 
   @override
@@ -394,6 +402,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String visibleCountLabel(int count) {
     return '$count visible';
   }
+
+  @override
+  String botsCountLabel(int count) {
+    return '$count bots';
+  }
+
+  @override
+  String get serverStatusIdle => 'Idle';
+
+  @override
+  String get serverStatusQueued => 'Queued';
+
+  @override
+  String get serverStatusTimedOut => 'Timed out';
+
+  @override
+  String get serverStatusNetworkError => 'Network error';
 
   @override
   String get unknownMap => 'Unknown map';
